@@ -1,0 +1,97 @@
+<!Doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
+
+<script src="./lib/web3.min.js"></script>
+<body>
+  <div>
+    <button onclick="init()">Connect Wallet</button>
+    <div id="account"></div>
+   
+  </div>
+		<div>
+			<label for="">공금 사용 목적</label>
+			<input type="text" name="" id="" placeholder="우리 체육대회 반티 어떤걸로 살래?">
+		</div>
+<div>
+	<label for="">사용할 금액 (ether)</label>
+	<input type="number" name="" id="" placeholder="ether">
+</div>	
+
+<div>
+<label for="">어디서 살건지 투표 리스트 만들기</label>
+<select name="" id="">
+	<option value="">1번 리스트</option>
+</select>
+<select name="" id="">
+	<option value="">2번 리스트</option>
+</select>
+<select name="" id="">
+	<option value="">3번 리스트</option>
+</select>
+<select name="" id="">
+	<option value="">4번 리스트</option>
+</select>
+</div>
+<div>
+	<label for="">리스트에 추가</label>
+	<input type="text" name="" id="" placeholder="물품 설명">
+	<input type="file" name="" id="">
+	<input type="text" name="" id="" placeholder="판매자 공개키 주소">
+	<button>리스트에 추가</button>
+</div>
+
+
+<div>
+	<label for="">투표 리스트 미리보기</label>
+	<input type="radio" name="vote" id="">1번
+	<input type="radio" name="vote" id="">2번
+	<input type="radio" name="vote" id="">3번
+	<input type="radio" name="vote" id="">4번
+</div>
+<div>
+	<label for="">투표 마감 시간</label>
+	<input type="number" name="" id="" placeholder="지금부터 '?' 시간 후 까지 투표할 수 있음">
+</div>
+<div>
+	<button>투표 시작</button>
+</div>
+ 
+
+
+</body>
+
+<script type="text/javascript">
+
+  let provider;
+  let web3;
+  let account;
+  let contract;
+
+ async function init() {
+
+  if (window.ethereum) {
+      web3 = new Web3(window.ethereum);
+      try {
+        // Request account access if needed
+        await window.ethereum.enable();
+        // Acccounts now exposed
+        web3.eth.getAccounts().then(function(accounts){
+          account = accounts[0]
+          document.getElementById("account").innerText = account
+        })
+      } catch (error) {
+      }
+    }
+    // Legacy dapp browsers...
+    else if (window.web3) {
+      // Use Mist/MetaMask's provider.
+      web3 = window.web3;
+      console.log("Injected web3 detected.");
+    }
+  }
+  
+</script>
+</html>

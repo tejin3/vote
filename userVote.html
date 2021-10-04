@@ -1,0 +1,411 @@
+<!Doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
+
+<script src="./lib/web3.min.js"></script>
+<body>
+	<div class="fullPage">
+
+   <div>
+		<img src="./asset/img/metamask.jpg" class="mask" title="지갑 연결"  onclick="init()">    
+    <div id="account"></div>
+   
+  </div>
+  <div>
+		<img src="./asset/img/connect.jpg" class="mask" title="컨트랙트 연결" onclick="getContract()">    
+    <div id="contract"></div>    
+  </div>
+	<div>
+    <button onclick="basicSetting()">사용될금액 / 투표만든사람</button>
+    <div id="basicSetting1"></div>
+    <div id="basicSetting2"></div>    
+  </div>  
+  <div>
+    <button onclick="getMyVote()">나의 투표여부(0 or 1)</button>
+    <div id="name"></div>   
+  </div>
+	<div >
+    <button onclick="callBuyList(), style='display: none;'">선택지 보기</button>
+		<div class="row">
+			<div style="margin: 0px 15%;">
+		<img src="./asset/img/반티1.jpg" id="mask1" class="mask" title="1번 선택" 
+		 onclick='document.getElementById("vote1").checked = true;' style="display: none;">    
+    <div id="callBuyList1"></div>
+	</div>
+	<div>
+		<img src="./asset/img/반티2.jpg" id="mask2" class="mask" title="2번 선택" 
+		onclick='document.getElementById("vote2").checked = true;' style="display: none;">    
+    <div id="callBuyList2"></div>
+	</div>
+</div >	
+<div class="row">
+	<div style="margin: 0px 15%;">
+		<img src="./asset/img/반티3.jpg" id="mask3" class="mask" title="3번 선택"  
+		onclick='document.getElementById("vote3").checked = true;' style="display: none;">    
+    <div id="callBuyList3"></div>
+	</div>
+	<div>
+		<img src="./asset/img/반티4.jpg" id="mask4" class="mask" title="4번 선택" 
+		onclick='document.getElementById("vote4").checked = true;' style="display: none;">    
+    <div id="callBuyList4"></div>
+	</div>
+</div>
+  </div>
+
+  <div>
+		<input type="radio" name="vote" id="vote1" value="1">1번 선택
+		<input type="radio" name="vote" id="vote2" value="2">2번 선택
+		<br>
+		<input type="radio" name="vote" id="vote3" value="3">3번 선택
+		<input type="radio" name="vote" id="vote4" value="4">4번 선택
+		<br>
+    <!-- <button onclick="vote()">vote (Transaction)</button> -->
+		<img src="./asset/img/vote.jpg" class="mask" title="투표" onclick="vote()">    
+
+
+  </div>
+  <div>
+    <button onclick="seeResult()">투표 현황 보기</button>
+    <table id="Table"></table>
+   
+  </div>
+  
+	<div>
+    <button onclick="sendMoney()">투표마감</button>  
+  </div>
+  <div>
+    <label>Event</label>
+    <div id="eventResult"></div>
+  </div>
+
+</div>
+</body>
+
+<script type="text/javascript">
+
+  let provider;
+  let web3;
+  let account;
+  let contract;
+
+ async function init() {
+
+  if (window.ethereum) {
+      web3 = new Web3(window.ethereum);
+      try {
+        // Request account access if needed
+        await window.ethereum.enable();
+        // Acccounts now exposed
+        web3.eth.getAccounts().then(function(accounts){
+          account = accounts[0]
+          document.getElementById("account").innerText = account
+        })
+      } catch (error) {
+      }
+    }
+    // Legacy dapp browsers...
+    else if (window.web3) {
+      // Use Mist/MetaMask's provider.
+      web3 = window.web3;
+      console.log("Injected web3 detected.");
+    }		
+  }
+  
+  function getContract() {
+    let abi = [
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_one",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_two",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_three",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_four",
+				"type": "address"
+			}
+		],
+		"stateMutability": "payable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			}
+		],
+		"name": "buyAddress",
+		"type": "event"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "buyList",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getMyVote",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ourMoney",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "seeResult",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "sendMoney",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_num",
+				"type": "uint256"
+			}
+		],
+		"name": "vote",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "voteCheck",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+    contract = new web3.eth.Contract(abi, "0x6af302ADe28E8ca395CB02225b43FA0Cb4d039e6")
+    document.getElementById("contract").innerText = contract._address
+    console.log(contract)
+
+    // // listen event
+    contract.events.buyAddress({}, function(error, event){ 
+      console.log(event)
+      document.getElementById("eventResult").innerText = "선정된 판매자" + event.returnValues.seller;
+    })
+    document.getElementById("eventResult").innerText = "Listening..."
+  }
+  // console.log("yourMoney", contract.yourMoney); 
+
+  async function getMyVote(){
+    let a = await contract.methods.getMyVote().call({from: account})
+    console.log("???", a)
+    document.getElementById("name").innerText = a;
+  }
+
+  function seeResult(){
+    contract.methods.seeResult().call()
+    .then(function(result){
+      
+      console.log(result);
+      console.log(typeof result);
+			let list = "";	
+      // var list1 = [];
+       for (var j in result) {
+				 var i = 1 + Number(j);
+			  list +=
+        "<tr><th style='text-align: center;'>" +
+         i +
+         "</th><th style='text-align: center;'>" +
+        result[j] +
+         "</th></tr>";  
+         }
+        //  list1.sort(function(a,b){return b - a});
+        //  var list2 = list1.shift();
+        //  console.log("list2", list2);     
+        document.getElementById("Table").innerHTML = list;
+  });
+};
+
+  function vote() {
+    // let name = document.getElementById("nameInput").value
+		// let name = document.getElementsByName("vote").checked;
+		let name = document.querySelector('input[name = vote]:checked').value;
+		console.log(name);
+    contract.methods.vote(name).send(
+      {from: account}
+    )
+    .then(function(receipt){
+        // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+        seeResult()
+    });
+
+  }
+
+
+  async function callBuyList() {    
+		document.getElementById("mask1").style.display = "";
+		document.getElementById("mask2").style.display = "";
+		document.getElementById("mask3").style.display = "";
+		document.getElementById("mask4").style.display = "";
+
+    let a = await contract.methods.buyList(1).call()
+    let b = await contract.methods.buyList(2).call()
+    let c = await contract.methods.buyList(3).call()
+    let d = await contract.methods.buyList(4).call()
+
+    console.log("???1", a)
+    document.getElementById("callBuyList1").innerText = a;
+    document.getElementById("callBuyList2").innerText = b;
+    document.getElementById("callBuyList3").innerText = c;
+    document.getElementById("callBuyList4").innerText = d;
+  }
+ 
+	 async function basicSetting() {    
+
+    let a = await contract.methods.ourMoney().call()
+    let b = await contract.methods.owner().call()
+    
+    console.log("???1", a)
+    document.getElementById("basicSetting1").innerText = a;
+    document.getElementById("basicSetting2").innerText = b;
+   
+  }
+	async function sendMoney(){
+    await contract.methods.sendMoney().send(
+      {from: account}
+    )
+    console.log("???")
+    
+  }
+
+</script>
+</html>
+<style>
+	body{
+		background-size: cover;
+		background: linear-gradient(0.25turn, #3f87a6, #ebf8e1, #f69d3c);
+	}
+	.fullPage {
+    height: 100vh;
+		text-align: center;
+}
+.mask {
+	width: 200px;
+}
+.mask:hover {
+    z-index: 3;
+    color: #000000;
+    outline: 2px solid #49aff2;
+    outline: 2px solid;
+    outline-offset: -2px;
+}
+#mask1,
+#mask2,
+#mask3,
+#mask4 {
+	width: 200px;
+	/* flex-wrap: wrap; */
+}
+button {
+	width: 200px;
+
+}
+
+</style>

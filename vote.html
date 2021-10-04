@@ -1,0 +1,408 @@
+<!Doctype html>
+<html>
+<head>
+<meta charset="UTF-8">
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/milligram/1.2.3/milligram.min.css">
+
+<script src="./lib/web3.min.js"></script>
+<body>
+  
+  <div>
+    <button onclick="init()">Connect Wallet</button>
+    <div id="account"></div>
+   
+  </div>
+  <div>
+    <button onclick="getContract()">Get Contract Instance</button>
+    <div id="contract"></div>
+    
+  </div>
+  <div>
+    <button onclick="getName()">getMyVote (view function)</button>
+    <div id="name"></div>
+   
+  </div>
+  <div>
+    <button onclick="getName1()">seeResult (view function)</button>
+    <table id="Table"></table>
+   
+  </div>
+  <div>
+    <button onclick="setName()">Set Name (Transaction)</button>
+    <input type="text" id="nameInput"/>
+   
+  </div>
+  <div>
+    <button onclick="setAddress()">setAddress (Transaction)</button>
+    <input type="text" id="nameInput1"/>
+   
+  </div>
+  <div>
+    <button onclick="callBuyList()">callBuyList (view)</button>
+    <input type="text" id="nameInput2"/>
+    <div id="name1"></div>
+   
+  </div>
+  <div>
+    <button onclick="setBuyList()">setBuyList (Transaction)</button>
+    <br>
+    첫번째 선택지 주소 :<input type="text" id="nameInput3"/>
+    두번째 선택지 주소 :<input type="text" id="nameInput4"/>
+    세번째 선택지 주소 :<input type="text" id="nameInput5"/>
+    네번째 선택지 주소 :<input type="text" id="nameInput6"/>
+
+    <div id="name1"></div>
+   
+  </div>
+  <div>
+    <label>Event</label>
+    <div id="eventResult"></div>
+  </div>
+</body>
+
+<script type="text/javascript">
+
+  let provider;
+  let web3;
+  let account;
+  let contract;
+
+ async function init() {
+
+  if (window.ethereum) {
+      web3 = new Web3(window.ethereum);
+      try {
+        // Request account access if needed
+        await window.ethereum.enable();
+        // Acccounts now exposed
+        web3.eth.getAccounts().then(function(accounts){
+          account = accounts[0]
+          document.getElementById("account").innerText = account
+        })
+      } catch (error) {
+      }
+    }
+    // Legacy dapp browsers...
+    else if (window.web3) {
+      // Use Mist/MetaMask's provider.
+      web3 = window.web3;
+      console.log("Injected web3 detected.");
+    }
+  }
+  
+  function getContract() {
+    let abi = [
+	{
+		"inputs": [],
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"anonymous": false,
+		"inputs": [
+			{
+				"indexed": false,
+				"internalType": "address",
+				"name": "seller",
+				"type": "address"
+			}
+		],
+		"name": "SetAddress",
+		"type": "event"
+	},
+	{
+		"inputs": [],
+		"name": "buyIt",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"name": "buyList",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "getMyVote",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "money",
+		"outputs": [],
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "ourMoney",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "owner",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "result",
+		"outputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "seeResult",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_result",
+				"type": "address"
+			}
+		],
+		"name": "setAddress",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "_one",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_two",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_three",
+				"type": "address"
+			},
+			{
+				"internalType": "address",
+				"name": "_four",
+				"type": "address"
+			}
+		],
+		"name": "setBuyList",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "_num",
+				"type": "uint256"
+			}
+		],
+		"name": "vote",
+		"outputs": [],
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "address",
+				"name": "",
+				"type": "address"
+			}
+		],
+		"name": "yourMoney",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}
+]
+    contract = new web3.eth.Contract(abi, "0x45dB2182b349Fa5A67Be43f5ef32a23615021d1b")
+    document.getElementById("contract").innerText = contract._address
+    console.log(contract)
+
+    // // listen event
+    contract.events.SetName({}, function(error, event){ 
+      console.log(event)
+      document.getElementById("eventResult").innerText = event.returnValues.seller;
+    })
+    document.getElementById("eventResult").innerText = "Listening..."
+  }
+  // console.log("yourMoney", contract.yourMoney); 
+
+  async function getName(){
+    let a = await contract.methods.getMyVote().call({from: account})
+    console.log("???", a)
+    document.getElementById("name").innerText = a;
+  }
+
+  function getName1(){
+    contract.methods.seeResult().call()
+    .then(function(result){
+      
+      console.log(result);
+      console.log(typeof result);
+			let list = "";	
+      var list1 = [];
+       for (var j in result) {
+			  list +=
+        "<tr><td>" +
+         j +
+         "</td><td>" +
+        result[j] +
+         "</td></tr>";
+         list1.push(result[j]);
+         
+         }
+         list1.sort(function(a,b){return b - a});
+         var list2 = list1.shift();
+         console.log("list2", list2);
+        //  if(result[0] == list2){
+
+        //   contract.methods.setAddress(setAddress).send(
+        //  {from: account}
+        //   )
+        //   .then(function(receipt){   
+        //   });
+        //  }
+        document.getElementById("Table").innerHTML = list;
+  });
+};
+
+  function setName() {
+    let name = document.getElementById("nameInput").value
+    contract.methods.vote(name).send(
+      {from: account}
+    )
+    .then(function(receipt){
+        // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+        getName()
+    });
+
+  }
+
+  function setBuyList() {
+    let setBuyList = document.getElementById("nameInput3").value
+    let setBuyList1 = document.getElementById("nameInput4").value
+    let setBuyList2 = document.getElementById("nameInput5").value
+    let setBuyList3 = document.getElementById("nameInput6").value
+
+    contract.methods.setBuyList(setBuyList, setBuyList1, setBuyList2, setBuyList3).send(
+      {from: account}
+    )
+    .then(function(receipt){       
+    });
+
+  }
+
+  function setAddress() {
+    let setAddress = document.getElementById("nameInput1").value
+    contract.methods.setAddress(setAddress).send(
+      {from: account}
+    )
+    .then(function(receipt){
+        // receipt can also be a new contract instance, when coming from a "contract.deploy({...}).send()"
+        // getName()
+    });
+
+  }
+
+  async function callBuyList() {
+    let callBuyList1 = document.getElementById("nameInput2").value
+
+    let a = await contract.methods.buyList(callBuyList1).call()
+    console.log("???1", a)
+    document.getElementById("name1").innerText = a;
+  }
+ 
+  async function callBuyList() {
+    let callBuyList1 = document.getElementById("nameInput2").value
+
+    let a = await contract.methods.buyList(callBuyList1).call()
+    console.log("???1", a)
+    document.getElementById("name1").innerText = a;
+  }
+
+
+</script>
+</html>
